@@ -1,5 +1,9 @@
 namespace ZooDrafto
 
+open DomainTypes
+open DomainFunctions
+
 module UseCases =
-    let hello name =
-        printfn "Hello %s" name
+    let startGame = 
+        GameState.empty
+        |> createDeck
