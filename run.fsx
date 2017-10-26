@@ -7,4 +7,4 @@ open DomainFunctions
 #load "UseCases.fs"
 open ZooDrafto.UseCases
 
-startGame
+startGame |> nextRound

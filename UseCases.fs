@@ -2,17 +2,17 @@ namespace ZooDrafto
 
 module UseCases =
 
-    open DomainTypes
     open DomainFunctions
 
     let startGame = 
         GameState.empty
         |> initGame
 
-    //let nextRound gameState =
-        
-        //create packs
-        //assign packs
+    let nextRound gameState =
+        gameState
+        |> startNextRound
 
+    let pickCard gameState playerId cardId =
+         chooseCard gameState playerId cardId
     // PickCard
     // EndTurn

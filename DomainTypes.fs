@@ -1,3 +1,4 @@
+[<AutoOpen>]
 module DomainTypes
 
 type CardType = | EggNigiri | SalmonNigiri | SquidNigiri
@@ -32,17 +33,33 @@ type Deck = { Cards: Card array }
             ({ Cards = takenCards }, { this with Cards = remainingCards })
 
 type Picked = { Cards: Card array }
-type Player = { Id: int; Pack: Pack; Picked: Picked; }
+type Player = { Id: int; Pack: Pack; Picked: Picked; ChosenCard: Card option; GameScore: int; RoundScore: int }
+    with
+        member internal this.ChooseCard cardId =
+            let card = Array.find (fun (x:Card) -> x.Id = cardId) this.Pack.Cards
+            let pack = { this.Pack with Cards = Array.filter (fun x -> x.Id <> cardId) this.Pack.Cards }
+            { this with ChosenCard = Some card; Pack = pack; }
+        member internal this.PickChosenCard =
+            match this.ChosenCard with
+            | Some card -> { this with Picked = { this.Picked with Cards = Array.append this.Picked.Cards [|card|] } }
+            | None -> this
 
 type Players = { Players: Player array }
     with
         static member internal init =
             [| for x in 1..5 do
-                yield { Id = x; Pack = {Cards=Array.empty}; Picked = {Cards=Array.empty} }|]
+                yield { Id = x; Pack = {Cards=Array.empty}; Picked = {Cards=Array.empty}; ChosenCard = None; GameScore = 0; RoundScore = 0 }|]
+        member internal this.GetPlayer playerId =
+            Array.find (fun x -> x.Id = playerId) this.Players
         member internal this.UpdatePlayer player =
             { this with Players = Array.map (fun x -> if x.Id = player.Id then player else x) this.Players }
+        member internal this.ResetScores =
+            let players = Array.map (fun x -> { x with RoundScore = 0 }) this.Players
+            { this with Players = players }
 
-type GameState = { Deck: Deck; Players: Players }
+type GameState = { Deck: Deck; Players: Players; CurrentRound:int; }
     with
         static member internal empty =
-            { Deck = { Cards = Array.empty }; Players = { Players = Array.empty }}
+            { Deck = { Cards = Array.empty }; Players = { Players = Array.empty }; CurrentRound = 0 }
+        member internal this.IncrementCurrentRound =
+            { this with CurrentRound = this.CurrentRound + 1 }
