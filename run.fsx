@@ -7,4 +7,5 @@ open DomainFunctions
 #load "UseCases.fs"
 open ZooDrafto.UseCases
 
-startGame |> nextRound
+let gs = startGame |> nextRound
+let p = gs.Players.GetPlayer 5
