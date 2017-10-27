@@ -41,7 +41,7 @@ type Player = { Id: int; Pack: Pack; Picked: Picked; ChosenCard: Card option; Ga
             { this with ChosenCard = Some card; Pack = pack; }
         member internal this.PickChosenCard =
             match this.ChosenCard with
-            | Some card -> { this with ChosenCard = None; Picked = { this.Picked with Cards = Array.append this.Picked.Cards [|card|]  }}
+            | Some card -> { this with ChosenCard = None; Picked = {this.Picked with Cards = Array.append this.Picked.Cards [|card|]} }
             | None -> this
 
 type Players = { Players: Player array }

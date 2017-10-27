@@ -1,3 +1,6 @@
+#load "CommonTypes.fs"
+open CommonTypes
+
 #load "DomainTypes.fs"
 open DomainTypes
 

@@ -4,7 +4,12 @@ let private createDeck gameState =
     { gameState with Deck = Deck.init.Shuffle }
 let private createPlayers (gameState:GameState) =
     { gameState with Players = { Players = Players.init } }
-let internal startGame = createDeck >> createPlayers
+let internal startGame gameState = 
+    logger {
+        let! x = createDeck gameState
+        let! y = createPlayers x
+        return y
+    }        
 
 let private createPacks gameState =
     let players = gameState.Players.Players
@@ -14,12 +19,21 @@ let private createPacks gameState =
 let private resetRoundScores (gameState:GameState) =
     { gameState with Players = gameState.Players.ResetScores }
 let private advanceRoundNumber (gameState:GameState) = gameState.IncrementCurrentRound
-let internal nextRound = createPacks >> resetRoundScores >> advanceRoundNumber
+let internal nextRound gameState = 
+    logger {
+        let! a = createPacks gameState
+        let! b = resetRoundScores a
+        let! c = advanceRoundNumber b
+        return c
+    }
 
 let internal chooseCard playerId cardId gameState =
-    let p = gameState.Players.GetPlayer playerId 
-    let player = p.ChooseCard cardId
-    { gameState with Players = gameState.Players.UpdatePlayer player }
+    logger {
+        let p = gameState.Players.GetPlayer playerId 
+        let player = p.ChooseCard cardId
+        let! a = { gameState with Players = gameState.Players.UpdatePlayer player }
+        return a
+    }
 
 let private pickChosenCards (gameState:GameState) =
     { gameState with Players = gameState.Players.PickChosenCards }
@@ -30,6 +44,10 @@ let private scorePickedCards gameState =
     { gameState with Players = { Players = players } }
 let private passPacks gameState =
     gameState //TODO: pass packs, determine what direction.
-let internal endTurn = pickChosenCards >> scorePickedCards >> passPacks
-    // move chosen card to picked and score picked pile and update roundscore pass packs
-    
+let internal endTurn gameState = 
+    logger {
+        let! a = pickChosenCards gameState
+        let! b = scorePickedCards a
+        let! c = passPacks b
+        return c
+    }
