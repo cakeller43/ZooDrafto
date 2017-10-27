@@ -5,7 +5,8 @@ open DomainTypes
 open DomainFunctions
 
 #load "UseCases.fs"
-open ZooDrafto.UseCases
+open ZooDrafto
 
-let gs = startGame |> nextRound
+let api = GameApi()
+let gs = api.StartGame |> api.NextRound
 let p = gs.Players.GetPlayer 5

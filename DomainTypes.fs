@@ -53,6 +53,9 @@ type Players = { Players: Player array }
             Array.find (fun x -> x.Id = playerId) this.Players
         member internal this.UpdatePlayer player =
             { this with Players = Array.map (fun x -> if x.Id = player.Id then player else x) this.Players }
+        member internal this.PickChosenCards =
+            let players = Array.map (fun (x:Player) -> x.PickChosenCard) this.Players
+            { this with Players = players }
         member internal this.ResetScores =
             let players = Array.map (fun x -> { x with RoundScore = 0 }) this.Players
             { this with Players = players }

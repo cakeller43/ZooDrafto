@@ -1,18 +1,20 @@
 namespace ZooDrafto
 
-module UseCases =
+open DomainFunctions
 
-    open DomainFunctions
-
-    let startGame = 
+type GameApi() =
+    member this.StartGame = 
         GameState.empty
-        |> initGame
+        |> startGame
 
-    let nextRound gameState =
+    member this.NextRound gameState =
         gameState
-        |> startNextRound
+        |> nextRound
 
-    let pickCard gameState playerId cardId =
-         chooseCard gameState playerId cardId
-    // PickCard
-    // EndTurn
+    member this.ChooseCard playerId cardId gameState =
+        gameState 
+        |> chooseCard playerId cardId
+    
+    member this.EndTurn gameState =
+        gameState 
+        |> endTurn
