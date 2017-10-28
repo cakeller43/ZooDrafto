@@ -1,6 +1,7 @@
 [<AutoOpen>]
 module DomainTypes
 
+type Direction = | Left | Right
 type CardType = | EggNigiri | SalmonNigiri | SquidNigiri
     with
         static member internal types = [|EggNigiri; SalmonNigiri; SquidNigiri|]
@@ -56,13 +57,30 @@ type Players = { Players: Player array }
         member internal this.PickChosenCards =
             let players = Array.map (fun (x:Player) -> x.PickChosenCard) this.Players
             { this with Players = players }
-        member internal this.ResetScores =
-            let players = Array.map (fun x -> { x with RoundScore = 0 }) this.Players
-            { this with Players = players }
+        member internal this.PassPacks direction =
+            let players,_ = 
+                match direction with
+                | Left ->
+                    let lastPack = (Array.last this.Players).Pack
+                    Array.mapFold (fun state elem -> 
+                        let tmp = elem.Pack
+                        ({elem with Pack = state},tmp)) lastPack this.Players
+                | Right -> 
+                    let lastPack = (Array.head this.Players).Pack
+                    Array.mapFoldBack (fun elem state -> 
+                        let tmp = elem.Pack
+                        ({elem with Pack = state},tmp)) this.Players lastPack
+            { this with Players = players }                
 
-type GameState = { Deck: Deck; Players: Players; CurrentRound:int; }
+type GameState = { Deck: Deck; Players: Players; CurrentRound: int; PassDirection: Direction}
     with
         static member internal empty =
-            { Deck = { Cards = Array.empty }; Players = { Players = Array.empty }; CurrentRound = 0 }
+            { Deck = { Cards = Array.empty }; Players = { Players = Array.empty }; CurrentRound = 0; PassDirection = Right }
         member internal this.IncrementCurrentRound =
             { this with CurrentRound = this.CurrentRound + 1 }
+        member internal this.SwitchPassDirection =
+            let dir =
+                match this.PassDirection with
+                | Left -> Right
+                | Right -> Left
+            { this with PassDirection = dir }

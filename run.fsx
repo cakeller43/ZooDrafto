@@ -12,4 +12,6 @@ open ZooDrafto
 
 let api = GameApi()
 let gs = api.StartGame |> api.NextRound
-let p = gs.Players.GetPlayer 5
+//let p = gs.Players.GetPlayer 5
+
+//gs.Players.PassPacks Left
