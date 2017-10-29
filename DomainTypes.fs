@@ -47,8 +47,8 @@ type Player = { Id: int; Pack: Pack; Picked: Picked; ChosenCard: Card option; Ga
 
 type Players = { Players: Player array }
     with
-        static member internal init =
-            [| for x in 1..5 do
+        static member internal init numPlayers =
+            [| for x in 1..numPlayers do
                 yield { Id = x; Pack = {Cards=Array.empty}; Picked = {Cards=Array.empty}; ChosenCard = None; GameScore = 0; RoundScore = 0 }|]
         member internal this.GetPlayer playerId =
             Array.find (fun x -> x.Id = playerId) this.Players
@@ -72,10 +72,21 @@ type Players = { Players: Player array }
                         ({elem with Pack = state},tmp)) this.Players lastPack
             { this with Players = players }                
 
-type GameState = { Deck: Deck; Players: Players; CurrentRound: int; PassDirection: Direction}
+type GameConfig = { NumberOfPlayers: int; NumberOfCardsInPacks: int; NumberOfRounds: int }
+type GameStatus = | Playing | RoundEnding | GameOver
+type GameState = { GameConfig: GameConfig; Deck: Deck; Players: Players; CurrentRound: int; PassDirection: Direction; GameStatus: GameStatus }
     with
         static member internal empty =
-            { Deck = { Cards = Array.empty }; Players = { Players = Array.empty }; CurrentRound = 0; PassDirection = Right }
+            { 
+                GameConfig = { NumberOfPlayers = 0; NumberOfCardsInPacks = 0; NumberOfRounds = 0 };
+                Deck = { Cards = Array.empty };
+                Players = { Players = Array.empty };
+                CurrentRound = 0;
+                PassDirection = Right;
+                GameStatus = Playing
+            }
+        member internal this.ApplyGameConfig gameConfig = 
+            { this with GameConfig = gameConfig }
         member internal this.IncrementCurrentRound =
             { this with CurrentRound = this.CurrentRound + 1 }
         member internal this.SwitchPassDirection =

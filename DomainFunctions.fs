@@ -1,20 +1,24 @@
 module DomainFunctions
 // TODO: Compose valdiation oneach of the usecases.
+
+let private initGameStateWithConfig gameConfig =
+    (GameState.empty).ApplyGameConfig gameConfig
 let private createDeck gameState = 
     { gameState with Deck = Deck.init.Shuffle }
 let private createPlayers (gameState:GameState) =
-    { gameState with Players = { Players = Players.init } }
-let internal startGame gameState = 
+    { gameState with Players = { Players = Players.init gameState.GameConfig.NumberOfPlayers } }
+let internal startGame gameConfig = 
     logger {
-        let! x = createDeck gameState
-        let! y = createPlayers x
-        return y
+        let! a = initGameStateWithConfig gameConfig
+        let! b = createDeck a
+        let! c = createPlayers b
+        return c
     }        
 
 let private createPacks gameState =
     let players = gameState.Players.Players
     Array.fold (fun state elem -> 
-        let pack,deck = state.Deck.CreatePack 7 //TODO: configure number of drawn cards.
+        let pack,deck = state.Deck.CreatePack gameState.GameConfig.NumberOfCardsInPacks
         { state with Deck = deck; Players = state.Players.UpdatePlayer { elem with Pack = pack } }) gameState players
 let private resetRoundScores (gameState:GameState) =
     let playersArr = Array.map (fun x -> { x with RoundScore = 0 }) gameState.Players.Players

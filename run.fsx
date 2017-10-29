@@ -11,7 +11,7 @@ open DomainFunctions
 open ZooDrafto
 
 let api = GameApi()
-let gs = api.StartGame |> api.NextRound
+let gs =  api.StartGame { NumberOfPlayers = 1; NumberOfCardsInPacks = 2; NumberOfRounds = 3 } |> api.NextRound
 //let p = gs.Players.GetPlayer 5
 
 //gs.Players.PassPacks Left

@@ -4,9 +4,8 @@ open DomainFunctions
 
 type GameApi() =
     ///Creates Players, Creates Deck
-    member this.StartGame = 
-        GameState.empty
-        |> startGame
+    member this.StartGame gameConfig = 
+        startGame gameConfig
 
     ///Creates Packs, Resets Round Scores, Advances the Round Number, Switches the Pass Direction
     member this.NextRound gameState =
@@ -22,3 +21,13 @@ type GameApi() =
     member this.EndTurn gameState =
         gameState 
         |> endTurn
+    
+    member this.HaveAllPlayersChosen (gameState:GameState) =
+        let x = 
+            Array.filter 
+                (fun x -> 
+                    match x.ChosenCard with
+                    | Some _ -> false
+                    | None -> true) 
+                gameState.Players.Players
+        Array.isEmpty x
