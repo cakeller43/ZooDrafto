@@ -29,5 +29,5 @@ type GameApi() =
                     match x.ChosenCard with
                     | Some _ -> false
                     | None -> true) 
-                gameState.DraftState.Players.Players
+                gameState.DraftState.Players
         Array.isEmpty x

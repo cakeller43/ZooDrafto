@@ -3,8 +3,9 @@
     <TargetFramework>net46</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CoreDraftTypes.fs" />
     <Compile Include="CommonTypes.fs" />
+    <Compile Include="CoreDraftTypes.fs" />
+    <Compile Include="CoreDraftFunctions.fs" />
     <Compile Include="DomainTypes.fs" />
     <Compile Include="DomainFunctions.fs" />
     <Compile Include="UseCases.fs" />
