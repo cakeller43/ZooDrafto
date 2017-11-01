@@ -3,28 +3,38 @@ module DomainFunctions
 
 let private initGameStateWithConfig gameConfig =
     (GameState.empty).ApplyGameConfig gameConfig
+let private initialDeck =
+    [for t in CardType.types do
+        yield [for _x in 1..20 do yield { Id = 0; CardType = t }]]
+    |> Seq.collect id
+    |> Seq.mapi (fun index elem -> { elem with Id = index })
+    |> Array.ofSeq
 let private createDeck gameState = 
-    { gameState with Deck = Deck.init.Shuffle }
+    { gameState with DraftState = { gameState.DraftState with Deck = (Deck<Card>.init initialDeck).Shuffle }}
 let private createPlayers (gameState:GameState) =
-    { gameState with Players = { Players = Players.init gameState.GameConfig.NumberOfPlayers } }
+    { gameState with DraftState = { gameState.DraftState with Players = { Players = Players<Card>.init gameState.GameConfig.NumberOfPlayers }}}
+let private initScores (gameState:GameState) = 
+    gameState.InitScores
 let internal startGame gameConfig = 
     logger {
         let! a = initGameStateWithConfig gameConfig
         let! b = createDeck a
         let! c = createPlayers b
-        return c
+        let! d = initScores c
+        return d
     }        
 
 let private createPacks gameState =
-    let players = gameState.Players.Players
-    Array.fold (fun state elem -> 
+    let players = gameState.DraftState.Players.Players
+    let draftState = Array.fold (fun state elem -> 
         let pack,deck = state.Deck.CreatePack gameState.GameConfig.NumberOfCardsInPacks
-        { state with Deck = deck; Players = state.Players.UpdatePlayer { elem with Pack = pack } }) gameState players
+        { state with Deck = deck; Players = state.Players.UpdatePlayer { elem with Pack = pack } }) gameState.DraftState players
+    { gameState with DraftState = draftState }
 let private resetRoundScores (gameState:GameState) =
-    let playersArr = Array.map (fun x -> { x with RoundScore = 0 }) gameState.Players.Players
-    { gameState with Players = { gameState.Players with Players = playersArr } }
+    let scores = Map.map (fun key value -> 0 ) gameState.RoundScores
+    { gameState with RoundScores = scores }
 let private advanceRoundNumber (gameState:GameState) = gameState.IncrementCurrentRound
-let private switchPassDirection (gameState:GameState) = gameState.SwitchPassDirection
+let private switchPassDirection (gameState:GameState) = { gameState with DraftState = gameState.DraftState.SwitchPassDirection }
 let internal nextRound gameState = 
     // TODO: validate gamestate and return ending game state if all rounds have been played.
     logger {
@@ -35,23 +45,26 @@ let internal nextRound gameState =
         return d
     }
 
+let private findCard card cardId = 
+    card.Id = cardId
 let internal chooseCard playerId cardId gameState =
     logger {
-        let p = gameState.Players.GetPlayer playerId 
-        let player = p.ChooseCard cardId
-        let! a = { gameState with Players = gameState.Players.UpdatePlayer player }
+        let p = gameState.DraftState.Players.GetPlayer playerId 
+        let player = p.ChooseCard cardId findCard
+        let! a = { gameState with DraftState = { gameState.DraftState with Players = gameState.DraftState.Players.UpdatePlayer player }}
         return a
     }
 
 let private pickChosenCards (gameState:GameState) =
-    { gameState with Players = gameState.Players.PickChosenCards }
-let private score player =
-    { player with RoundScore = 1 } //TODO: implement scoring and card values.
+    let ds = { gameState.DraftState with Players = gameState.DraftState.Players.PickChosenCards }
+    { gameState with DraftState = ds }
+let private score key value =
+    1 //TODO: implement scoring and card values.
 let private scorePickedCards gameState =
-    let players = Array.map score gameState.Players.Players
-    { gameState with Players = { Players = players } }
+    let scores = Map.map score gameState.RoundScores
+    { gameState with RoundScores = scores }
 let private passPacks gameState =
-    gameState.Players.PassPacks gameState.PassDirection
+    gameState.DraftState.Players.PassPacks gameState.DraftState.PassDirection
 let internal endTurn gameState = 
     logger {
         let! a = pickChosenCards gameState
