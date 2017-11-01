@@ -11,7 +11,7 @@ type GameConfig = { NumberOfPlayers: int; NumberOfCardsInPacks: int; NumberOfRou
 
 type GameStatus = | Playing | RoundEnding | GameOver
 
-type GameState = { DraftState: DraftState<Card>; GameConfig: GameConfig; CurrentRound: int; GameStatus: GameStatus; RoundScores: Map<int,int>; GameScores: Map<int,int> }
+type GameState = internal { DraftState: DraftState<Card>; GameConfig: GameConfig; CurrentRound: int; GameStatus: GameStatus; RoundScores: Map<int,int>; GameScores: Map<int,int> }
     with
         static member empty =
             { 
