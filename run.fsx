@@ -1,6 +1,12 @@
 #load "CommonTypes.fs"
 open CommonTypes
 
+#load "CoreDraftTypes.fs"
+open CoreDraftTypes
+
+#load "CoreDraftFunctions.fs"
+open CoreDraftFunctions
+
 #load "DomainTypes.fs"
 open DomainTypes
 

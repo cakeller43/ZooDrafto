@@ -3,7 +3,7 @@ module CommonTypes
 
 // TODO: make gamestate monad once we have a reason to.
 type LoggerBuilder() =
-    let log p = printfn "GameState is HERE"
+    let log p = printfn "%A" p
 
     member this.Bind(x, f) = 
         log x
