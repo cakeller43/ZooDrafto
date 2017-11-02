@@ -1,0 +1,5 @@
+source https://nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+
+nuget xunit
+nuget dotnet-xunit
