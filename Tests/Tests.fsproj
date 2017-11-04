@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Tests.fs" />
+    <Compile Include="CoreDraftTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Api\Api.fsproj" />
