@@ -3,3 +3,5 @@ source https://api.nuget.org/v3/index.json
 
 nuget xunit
 nuget dotnet-xunit
+nuget FSharp.Core
+nuget System.ValueTuple

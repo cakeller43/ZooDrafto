@@ -14,10 +14,10 @@ let createPack deck numToDraw=
     let takenCards,remainingCards = Array.splitAt numToDraw deck
     (takenCards,  remainingCards)
 
-let chooseCard player cardId predicate =
-    let card = Array.find (fun x -> predicate x cardId) player.Pack
-    let pack = Array.filter (fun x -> not (predicate x cardId)) player.Pack
-    { player with ChosenCard = Some card; Pack = pack; }
+let chooseCard player predicate =
+    let card = Array.tryFind predicate player.Pack
+    let pack = Array.filter (predicate >> not) player.Pack
+    { player with ChosenCard = card; Pack = pack; }
 
 let pickChosenCard player =
     match player.ChosenCard with
@@ -28,27 +28,29 @@ let initPlayers numPlayers =
     [| for x in 1..numPlayers do
         yield { PlayerId = x; Pack = Array.empty; Picked = Array.empty; ChosenCard = None; }|]
 
-let getPlayer players playerId =
+let getPlayer playerId players  =
     Array.find (fun x -> x.PlayerId = playerId) players
 
-let updatePlayer players player =
+let updatePlayer player players  =
     Array.map (fun x -> if x.PlayerId = player.PlayerId then player else x) players
 
 let pickChosenCards players =
     Array.map pickChosenCard players
 
-let passPacks players direction =
+let passPacks direction players=
     match direction with
     | Left ->
         let lastPack = (Array.last players).Pack
-        Array.mapFold (fun state elem -> 
+        let res,_ = Array.mapFold (fun state elem -> 
             let tmp = elem.Pack
             ({elem with Pack = state},tmp)) lastPack players
+        res
     | Right -> 
         let lastPack = (Array.head players).Pack
-        Array.mapFoldBack (fun elem state -> 
+        let res,_ = Array.mapFoldBack (fun elem state -> 
             let tmp = elem.Pack
             ({elem with Pack = state},tmp)) players lastPack
+        res
 
 let switchPassDirection draftState =
     let dir =

@@ -36,7 +36,7 @@ let private createPacks gameState =
     let players = gameState.DraftState.Players
     let draftState = Array.fold (fun state elem -> 
         let pack,deck = createPack state.Deck gameState.GameConfig.NumberOfCardsInPacks
-        { state with Deck = deck; Players = updatePlayer state.Players {elem with Pack = pack} }) gameState.DraftState players
+        { state with Deck = deck; Players = updatePlayer {elem with Pack = pack} state.Players }) gameState.DraftState players
     { gameState with DraftState = draftState }
 let private resetRoundScores gameState =
     let scores = Map.map (fun _key _value -> 0 ) gameState.RoundScores
@@ -53,14 +53,15 @@ let nextRound gameState =
         return d
     }
 
-let private findCard card cardId = 
+let private findCard cardId card = 
     card.CardId = cardId
 let chooseCard playerId cardId gameState =
     let ds = gameState.DraftState
+    let predicate = findCard cardId
     logger {
-        let p = getPlayer ds.Players playerId 
-        let player = chooseCard p cardId findCard
-        let! a = { gameState with DraftState = { ds with Players = updatePlayer ds.Players player }}
+        let p = getPlayer playerId ds.Players  
+        let player = chooseCard p predicate
+        let! a = { gameState with DraftState = { ds with Players = updatePlayer player ds.Players  }}
         return a
     }
 
@@ -74,7 +75,7 @@ let private scorePickedCards gameState =
     { gameState with RoundScores = scores }
 let private passPacks gameState =
     let ds = gameState.DraftState
-    passPacks ds.Players ds.PassDirection
+    passPacks ds.PassDirection ds.Players
 let endTurn gameState = 
     logger {
         let! a = pickChosenCards gameState
