@@ -6,7 +6,7 @@ type LoggerBuilder() =
     let log p = printfn "%A" p
 
     member this.Bind(x, f) = 
-        log x
+        //log x
         f x
     member this.Return(x) =
         x

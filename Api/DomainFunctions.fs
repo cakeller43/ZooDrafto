@@ -75,7 +75,7 @@ let private scorePickedCards gameState =
     { gameState with RoundScores = scores }
 let private passPacks gameState =
     let ds = gameState.DraftState
-    passPacks ds.PassDirection ds.Players
+    { gameState with DraftState = { ds with Players = passPacks ds.PassDirection ds.Players } }
 let endTurn gameState = 
     logger {
         let! a = pickChosenCards gameState
